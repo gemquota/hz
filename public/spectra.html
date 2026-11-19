@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b13">
+<meta name="description" content="An interactive light instrument for shaping spectral rainbows and drifting auroras.">
+<title>SPECTRA — A light instrument</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700&display=swap');
+:root{color-scheme:dark;--ink:#f2f0eb;--muted:#777b8c;--line:#ffffff20;--panel:#ffffff08;--mono:'DM Mono',monospace;--sans:'Manrope',sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080b13;color:var(--ink);font-family:var(--sans)}body{overflow-x:hidden}button,input{font:inherit}button{color:inherit;cursor:pointer}button:focus-visible,input:focus-visible{outline:1px solid #d9d6ff;outline-offset:4px}
+.shell{width:min(1440px,100%);min-height:100svh;margin:auto;padding:25px clamp(18px,4vw,58px) 28px;display:flex;flex-direction:column;gap:20px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}.sigil{width:27px;height:27px;border:1px solid #d7c9ff80;border-radius:50%;position:relative}.sigil:before,.sigil:after{content:"";position:absolute;border:1px solid #d7c9ff90;border-radius:50%;inset:5px -4px;transform:rotate(55deg)}.sigil:after{transform:rotate(-55deg)}.brand-name{font-size:11px;letter-spacing:.34em;font-weight:600}.brand-sub{font:9px var(--mono);color:#777b8c;letter-spacing:.16em;margin-top:4px}.nav{display:flex;align-items:center;gap:18px}.nav a{font:9px var(--mono);letter-spacing:.15em;text-decoration:none;color:#8d90a0}.nav a:hover,.nav a.active{color:#fff}.nav a.active:after{content:"";display:block;height:1px;background:#c7b7ff;margin-top:5px}
+.intro{display:flex;align-items:end;justify-content:space-between;gap:24px}.eyebrow{font:9px var(--mono);letter-spacing:.24em;color:#9c91c8;text-transform:uppercase}.intro h1{font-size:clamp(31px,5vw,58px);line-height:.98;letter-spacing:-.065em;font-weight:300;margin:9px 0 8px}.intro p{font-size:12px;line-height:1.6;color:#8c8fa0;margin:0;max-width:490px}.edition{font:9px var(--mono);letter-spacing:.15em;color:#777b8c;white-space:nowrap;padding-bottom:4px}
+.stage{position:relative;flex:1;min-height:390px;height:min(58vh,650px);border:1px solid #ffffff12;background:radial-gradient(ellipse at 50% 48%,#151827 0,#0b0e18 55%,#080b13 100%);overflow:hidden;isolation:isolate;touch-action:pan-y}.stage:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#080b13aa,transparent 20%,transparent 80%,#080b13aa),linear-gradient(0deg,#080b13aa,transparent 24%,transparent 78%,#080b13aa)}canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.stage-label{position:absolute;z-index:2;left:20px;top:18px;font:9px var(--mono);letter-spacing:.2em;color:#ffffff65}.stage-coord{position:absolute;z-index:2;right:20px;top:18px;font:9px var(--mono);color:#ffffff55}.stage-hint{position:absolute;z-index:2;bottom:18px;left:20px;font:9px var(--mono);letter-spacing:.12em;color:#ffffff65}.pause{position:absolute;z-index:3;right:16px;bottom:14px;border:1px solid #ffffff30;background:#080b1370;border-radius:99px;padding:8px 12px;font:9px var(--mono);letter-spacing:.12em;color:#c4c2d1;backdrop-filter:blur(8px)}
+.console{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,390px);gap:22px;align-items:start}.left-controls{display:flex;flex-direction:column;gap:14px}.mode-row{display:flex;align-items:center;gap:8px}.mode{border:1px solid #ffffff20;background:transparent;color:#8d90a0;border-radius:99px;padding:10px 17px;font:9px var(--mono);letter-spacing:.15em;transition:.2s}.mode[aria-pressed=true]{color:#fff;border-color:#cbbcff90;background:#b8a5ff15;box-shadow:inset 0 0 18px #b8a5ff0b}.mode .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:1px;background:currentColor}
+.preset-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.preset-label{font:9px var(--mono);letter-spacing:.15em;color:#696d7e;margin-right:5px}.preset{border:1px solid #ffffff17;background:#ffffff05;border-radius:99px;padding:7px 11px;font:9px var(--mono);color:#999cad;transition:.2s}.preset:hover,.preset.active{border-color:#b9a9ef75;color:#e7e0ff;background:#b8a5ff0d}
+.actions{display:flex;gap:8px;align-items:center}.action{border:1px solid #ffffff26;background:transparent;padding:10px 14px;border-radius:3px;font:9px var(--mono);letter-spacing:.12em;color:#d5d3df}.action.primary{background:#e8e0ff;color:#14121c;border-color:#e8e0ff}.action:hover{border-color:#e5dcff}.action.primary:hover{background:#fff}.action.icon{width:38px;padding:10px 0;text-align:center;font-size:14px}
+.knobs{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;padding:15px 17px;border:1px solid #ffffff15;background:#ffffff04}.knob{min-width:0}.knob-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}.knob label{font:9px var(--mono);letter-spacing:.14em;color:#a3a5b3;text-transform:uppercase}.value{font:10px var(--mono);color:#e2d8ff;font-variant-numeric:tabular-nums}.knob input{appearance:none;width:100%;height:18px;margin:0;background:transparent;cursor:pointer}.knob input::-webkit-slider-runnable-track{height:1px;background:linear-gradient(90deg,#c8b7ff var(--fill,50%),#ffffff28 var(--fill,50%))}.knob input::-webkit-slider-thumb{appearance:none;width:10px;height:10px;border-radius:50%;background:#e7deff;margin-top:-4.5px;box-shadow:0 0 12px #c8b7ff80}.knob input::-moz-range-track{height:1px;background:#ffffff28}.knob input::-moz-range-progress{height:1px;background:#c8b7ff}.knob input::-moz-range-thumb{width:10px;height:10px;border:0;border-radius:50%;background:#e7deff;box-shadow:0 0 12px #c8b7ff80}
+.palette{display:flex;align-items:center;gap:8px}.swatch{width:22px;height:22px;border:1px solid #ffffff40;border-radius:50%;padding:0;position:relative}.swatch[aria-pressed=true]:after{content:"";position:absolute;inset:-4px;border:1px solid #fff;border-radius:50%}.swatch[data-palette=prism]{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)}.swatch[data-palette=polar]{background:linear-gradient(135deg,#8cf4db,#86a8ff,#c6a3ff)}.swatch[data-palette=ember]{background:linear-gradient(135deg,#ffca8a,#ff719c,#a96bff)}.swatch[data-palette=glacier]{background:linear-gradient(135deg,#e4ffff,#8bd5ff,#8e9cff)}.swatch[data-palette=ghost]{background:linear-gradient(135deg,#e9d9ff,#9b8fe2,#77d9cf)}
+.side-note{display:flex;justify-content:space-between;gap:12px;align-items:center;font:9px var(--mono);letter-spacing:.12em;color:#666b7b}.side-note span:last-child{color:#a09ab6}
+@media(min-width:1000px){.shell{gap:22px}.stage{height:min(58vh,680px)}}@media(max-width:760px){.shell{padding:18px 15px 22px;gap:16px}.intro{align-items:start}.intro h1{font-size:39px}.edition{display:none}.stage{min-height:340px;height:48vh}.console{grid-template-columns:1fr;gap:17px}.knobs{order:1}.left-controls{order:2}.side-note{order:3}}@media(max-width:430px){.nav{gap:11px}.nav a{font-size:8px}.brand-name{font-size:10px}.intro p{font-size:11px}.stage{min-height:310px;height:43vh}.knobs{gap:13px 14px;padding:13px}.mode{padding:9px 12px}.preset{padding:7px 9px}.actions .action{padding:10px 11px}.actions .icon{width:36px;padding:10px 0}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header>
+<a class="brand" href="./index.html"><span class="sigil" aria-hidden="true"></span><span><div class="brand-name">H Z / SPECTRA</div><div class="brand-sub">A SMALL INSTRUMENT FOR LIGHT</div></span></a>
+<nav class="nav"><a href="./index.html">HARMONIC DRIFT</a><a href="./vision-audio.html">CHROMA</a><a class="active" href="./spectra.html">SPECTRA</a></nav>
+</header>
+<section class="intro"><div><div class="eyebrow">Atmospheric studies · 001</div><h1>Light, in motion.</h1><p>Shape a spectrum. Bend the atmosphere. A little weather for the imagination.</p></div><div class="edition">GENERATIVE LIGHT / LIVE CANVAS</div></section>
+<section class="stage" id="stage" aria-label="Interactive generative light canvas"><canvas id="art"></canvas><div class="stage-label" id="scene-label">01 / PRISMATIC ARC</div><div class="stage-coord" id="coord">FIELD 50° / 50°</div><div class="stage-hint">TOUCH OR DRAG THE FIELD TO MOVE THE LIGHT</div><button class="pause" id="pause" aria-pressed="false">Ⅱ &nbsp; PAUSE</button></section>
+<section class="console">
+<div class="left-controls">
+<div class="mode-row"><button class="mode" data-mode="rainbow" aria-pressed="true"><i class="dot"></i>RAINBOW</button><button class="mode" data-mode="aurora" aria-pressed="false"><i class="dot"></i>AURORA</button><button class="mode" data-mode="hybrid" aria-pressed="false"><i class="dot"></i>HYBRID</button></div>
+<div class="preset-row"><span class="preset-label">ATMOSPHERE</span><button class="preset active" data-preset="halo">Halo</button><button class="preset" data-preset="double">Double</button><button class="preset" data-preset="veil">Veil</button><button class="preset" data-preset="ribbons">Ribbons</button><button class="preset" data-preset="dream">Dream</button></div>
+<div class="actions"><button class="action primary" id="random">✳ &nbsp; SURPRISE ME</button><button class="action" id="reset">RESET</button><button class="action icon" id="export" title="Save artwork as PNG" aria-label="Save artwork as PNG">↧</button></div>
+</div>
+<div class="knobs">
+<div class="knob"><div class="knob-head"><label for="flow">Drift</label><output class="value" id="flow-val">42</output></div><input id="flow" type="range" min="0" max="100" value="42"></div>
+<div class="knob"><div class="knob-head"><label for="intensity">Radiance</label><output class="value" id="intensity-val">72</output></div><input id="intensity" type="range" min="10" max="100" value="72"></div>
+<div class="knob"><div class="knob-head"><label for="shape">Curvature</label><output class="value" id="shape-val">58</output></div><input id="shape" type="range" min="0" max="100" value="58"></div>
+<div class="knob"><div class="knob-head"><label for="layers">Multiplicity</label><output class="value" id="layers-val">5</output></div><input id="layers" type="range" min="1" max="10" value="5"></div>
+<div class="knob"><div class="knob-head"><label for="softness">Diffusion</label><output class="value" id="softness-val">64</output></div><input id="softness" type="range" min="0" max="100" value="64"></div>
+<div class="knob"><div class="knob-head"><label for="hue">Colour drift</label><output class="value" id="hue-val">0°</output></div><input id="hue" type="range" min="0" max="360" value="0"></div>
+<div class="knob-head" style="grid-column:1/-1;margin:0"><label>Chromatic language</label><div class="palette" id="palette"><button class="swatch" data-palette="prism" aria-label="Prism palette" aria-pressed="true"></button><button class="swatch" data-palette="polar" aria-label="Polar palette" aria-pressed="false"></button><button class="swatch" data-palette="ember" aria-label="Ember palette" aria-pressed="false"></button><button class="swatch" data-palette="glacier" aria-label="Glacier palette" aria-pressed="false"></button><button class="swatch" data-palette="ghost" aria-label="Ghost palette" aria-pressed="false"></button></div></div>
+</div>
+</section>
+<div class="side-note"><span>NO TWO MOMENTS ARE THE SAME</span><span id="status">FIELD IN MOTION</span></div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),canvas=$('art'),ctx=canvas.getContext('2d',{alpha:false}),stage=$('stage');
+const defaults={mode:'rainbow',preset:'halo',flow:42,intensity:72,shape:58,layers:5,softness:64,hue:0,palette:'prism',x:.5,y:.5};
+const s={...defaults,paused:false,elapsed:0,last:0,w:0,h:0,dpr:1};
+const palettes={prism:[0,48,105,160,210,265,315],polar:[155,178,205,225,250,275],ember:[15,340,8,285,320],glacier:[175,190,205,220,245,265],ghost:[275,255,190,160,215]};
+const presets={halo:{mode:'rainbow',shape:58,layers:5,softness:64,intensity:72},double:{mode:'rainbow',shape:80,layers:8,softness:45,intensity:78},veil:{mode:'aurora',shape:42,layers:6,softness:85,intensity:66},ribbons:{mode:'aurora',shape:72,layers:9,softness:35,intensity:90},dream:{mode:'hybrid',shape:90,layers:7,softness:78,intensity:83}};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=t=>t*t*(3-2*t);
+function resize(){const r=stage.getBoundingClientRect();s.dpr=Math.min(devicePixelRatio||1,1.7);s.w=r.width;s.h=r.height;canvas.width=Math.round(r.width*s.dpr);canvas.height=Math.round(r.height*s.dpr);ctx.setTransform(s.dpr,0,0,s.dpr,0,0)}
+new ResizeObserver(resize).observe(stage);resize();
+function cssHue(h){return 'hsl('+((h%360)+360)%360+' 100% 70%)'}
+function gradientStops(){const hues=palettes[s.palette];return hues.map((h,i)=>({p:i/(hues.length-1),h:(h+s.hue)%360}))}
+function paintRainbow(t,alpha=1,scale=1){
+ const w=s.w,h=s.h,cx=s.x*w,cy=s.y*h,base=Math.min(w*.73,h*1.42)*scale,curve=s.shape/100;
+ const count=s.layers,drift=t*(.12+s.flow/1900),stops=gradientStops();
+ ctx.save();ctx.globalCompositeOperation='screen';
+ for(let k=count-1;k>=0;k--){
+  const r=base*(.43+k*.115),offset=Math.sin(drift+k*.57)*(.025+s.shape/2200)*base;
+  const y=cy+base*.15+offset,rx=r*(1.05+curve*.34),ry=r*(.68+curve*.58);
+  const grad=ctx.createLinearGradient(cx-rx,y-ry,cx+rx,y);
+  stops.forEach(c=>grad.addColorStop(c.p,cssHue(c.h)));
+  const opacity=alpha*(.10+s.intensity/145)*(1-k/count*.55),width=(5+s.softness*.25)*(1+k*.025);
+  ctx.beginPath();ctx.ellipse(cx,y,rx,ry,0,Math.PI,Math.PI*2);ctx.strokeStyle=grad;ctx.globalAlpha=opacity;ctx.lineWidth=width;ctx.shadowColor=cssHue((stops[1]?.h||180)+s.hue);ctx.shadowBlur=12+s.softness*.48;ctx.stroke();ctx.shadowBlur=0;
+  ctx.globalAlpha=opacity*.22;ctx.lineWidth=width*2.5;ctx.stroke();
+ }
+ // Floating refracted haze
+ const haze=ctx.createRadialGradient(cx,cy-base*.25,0,cx,cy-base*.25,base*1.05);haze.addColorStop(0,'rgba(175,145,255,'+(.018+s.intensity/5000)+')');haze.addColorStop(1,'transparent');ctx.globalAlpha=alpha;ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
+ ctx.restore();
+}
+function paintAurora(t,alpha=1){
+ const w=s.w,h=s.h,count=s.layers,flow=.15+s.flow/95,amp=(.055+s.shape/1000)*h,soft=5+s.softness*.45,stops=gradientStops();
+ ctx.save();ctx.globalCompositeOperation='screen';
+ for(let band=0;band<count;band++){
+  const baseY=h*(.27+band*.055),phase=band*1.13+t*flow*(.38+band*.025),span=w*(.58+((band%3)*.12)),start=(w-span)/2;
+  const grad=ctx.createLinearGradient(0,baseY-amp*2,0,baseY+amp*2);
+  stops.forEach(c=>grad.addColorStop(c.p,cssHue(c.h)));
+  ctx.beginPath();
+  const steps=72;
+  for(let i=0;i<=steps;i++){const x=start+span*i/steps,n=i/steps;const wave=Math.sin(n*5.5+phase)*amp+Math.sin(n*11-phase*.7+band)*amp*.28;const y=baseY+wave+Math.sin(n*2.5+phase*.4)*amp*.45;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+  for(let i=steps;i>=0;i--){const x=start+span*i/steps,n=i/steps;const wave=Math.sin(n*5.5+phase)*amp+Math.sin(n*11-phase*.7+band)*amp*.28;const y=baseY+wave+Math.sin(n*2.5+phase*.4)*amp*.45+amp*(.22+s.softness/150);ctx.lineTo(x,y)}
+  ctx.closePath();ctx.fillStyle=grad;ctx.globalAlpha=alpha*(.075+s.intensity/430);ctx.shadowColor=cssHue(stops[(band+2)%stops.length].h);ctx.shadowBlur=soft*2;ctx.fill();ctx.shadowBlur=0;
+  ctx.beginPath();for(let i=0;i<=steps;i++){const x=start+span*i/steps,n=i/steps;const wave=Math.sin(n*5.5+phase)*amp+Math.sin(n*11-phase*.7+band)*amp*.28;const y=baseY+wave+Math.sin(n*2.5+phase*.4)*amp*.45;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+  ctx.strokeStyle=grad;ctx.globalAlpha=alpha*(.15+s.intensity/180);ctx.lineWidth=1.5+soft*.11;ctx.stroke();
+ }
+ // fine vertical filaments
+ const filaments=24+Math.round(s.layers*5);
+ for(let i=0;i<filaments;i++){const x=(i/filaments*w+Math.sin(t*.13+i*4)*w*.035);const phase=t*flow*.6+i*.83;const top=h*(.2+((Math.sin(i*9.2)+1)*.11));const length=h*(.12+((Math.sin(i*2.7+phase)+1)*.22));ctx.beginPath();ctx.moveTo(x,top);ctx.bezierCurveTo(x+Math.sin(phase)*20,top+length*.4,x+Math.cos(phase*1.3)*30,top+length*.7,x+Math.sin(phase*.7)*16,top+length);ctx.strokeStyle=cssHue(stops[i%stops.length].h);ctx.globalAlpha=alpha*(.025+s.intensity/850);ctx.lineWidth=.7+s.softness/85;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=soft;ctx.stroke()}
+ ctx.restore();
+}
+function paint(t){
+ const w=s.w,h=s.h;if(!w||!h)return;
+ ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.fillStyle='#090c16';ctx.fillRect(0,0,w,h);
+ const bg=ctx.createRadialGradient(w*s.x,h*s.y,0,w*s.x,h*s.y,Math.max(w,h)*.85);bg.addColorStop(0,'#17182a');bg.addColorStop(.55,'#0d1220');bg.addColorStop(1,'#090c16');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+ // restrained star dust
+ for(let i=0;i<38;i++){const x=(i*137.51%w),y=(i*83.17%h),a=.13+.12*Math.sin(t*.4+i);ctx.fillStyle='rgba(220,220,255,'+a+')';ctx.fillRect(x,y,1,1)}
+ if(s.mode==='rainbow'||s.mode==='hybrid')paintRainbow(t,s.mode==='hybrid'?.82:1,s.mode==='hybrid'?.88:1);
+ if(s.mode==='aurora'||s.mode==='hybrid')paintAurora(t,s.mode==='hybrid'?.95:1);
+ // subtle centre of light
+ const glow=ctx.createRadialGradient(w*s.x,h*s.y,0,w*s.x,h*s.y,Math.min(w,h)*.5);glow.addColorStop(0,'rgba(180,164,255,'+s.intensity/2400+')');glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+}
+function frame(now){if(!s.last)s.last=now;const dt=Math.min((now-s.last)/1000,.05);s.last=now;if(!s.paused)s.elapsed+=dt*(.12+s.flow/45);paint(s.elapsed);requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+function sync(){['flow','intensity','shape','layers','softness','hue'].forEach(k=>{const el=$(k),out=$(k+'-val');out.textContent=k==='hue'?el.value+'°':el.value;el.style.setProperty('--fill',((+el.value-(+el.min))/(+el.max-(+el.min))*100)+'%');s[k]=+el.value});$('coord').textContent='FIELD '+Math.round(s.x*100)+'° / '+Math.round(s.y*100)+'°';$('scene-label').textContent=(s.mode==='rainbow'?'01 / PRISMATIC ARC':s.mode==='aurora'?'02 / POLAR VEIL':'03 / INTERFERENCE FIELD');$('status').textContent=s.paused?'STILL FRAME':'FIELD IN MOTION'}
+['flow','intensity','shape','layers','softness','hue'].forEach(k=>$(k).addEventListener('input',sync));
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{s.mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));sync()}));
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=presets[b.dataset.preset];Object.entries(p).forEach(([k,v])=>{s[k]=v;if($(k))$(k).value=v});document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===s.mode?'true':'false'));sync()}));
+document.querySelectorAll('[data-palette]').forEach(b=>b.addEventListener('click',()=>{s.palette=b.dataset.palette;document.querySelectorAll('[data-palette]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'))}));
+function point(e){const r=stage.getBoundingClientRect();s.x=clamp((e.clientX-r.left)/r.width,.08,.92);s.y=clamp((e.clientY-r.top)/r.height,.12,.88);sync()}
+let dragging=false;stage.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;dragging=true;stage.setPointerCapture(e.pointerId);point(e)});stage.addEventListener('pointermove',e=>{if(dragging)point(e)});stage.addEventListener('pointerup',()=>dragging=false);stage.addEventListener('pointercancel',()=>dragging=false);
+$('pause').addEventListener('click',()=>{s.paused=!s.paused;$('pause').setAttribute('aria-pressed',String(s.paused));$('pause').innerHTML=s.paused?'▶ &nbsp; RESUME':'Ⅱ &nbsp; PAUSE';sync()});
+$('random').addEventListener('click',()=>{const modes=['rainbow','aurora','hybrid'],pres=Object.keys(presets),p=pres[Math.floor(Math.random()*pres.length)];Object.assign(s,presets[p]);s.mode=modes[Math.floor(Math.random()*modes.length)];s.palette=Object.keys(palettes)[Math.floor(Math.random()*5)];['flow','intensity','shape','layers','softness','hue'].forEach(k=>{const el=$(k);s[k]=Math.round(+el.min+Math.random()*(+el.max-(+el.min)));el.value=s[k]});s.x=.2+Math.random()*.6;s.y=.2+Math.random()*.55;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===s.mode?'true':'false'));document.querySelectorAll('[data-palette]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.palette===s.palette?'true':'false'));document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x.dataset.preset===p));sync()});
+$('reset').addEventListener('click',()=>{Object.assign(s,defaults);['flow','intensity','shape','layers','softness','hue'].forEach(k=>$(k).value=s[k]);document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===s.mode?'true':'false'));document.querySelectorAll('[data-palette]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.palette===s.palette?'true':'false'));document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x.dataset.preset==='halo'));sync()});
+$('export').addEventListener('click',()=>{const link=document.createElement('a');link.download='spectra-light-study.png';link.href=canvas.toDataURL('image/png');link.click()});
+sync();
+})();
+</script>
+</body>
+</html>
