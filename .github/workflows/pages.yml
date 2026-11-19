@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "public/index.html"
+      - "public/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
