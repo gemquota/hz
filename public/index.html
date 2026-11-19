@@ -210,7 +210,7 @@
   }
   $("play").addEventListener("click",start);
   $("stop").addEventListener("click",pause);
-  $("reveal").addEventListener("click",()=>{if(!state.playing)start();rampTo(state.anchor*60,5200);});
+  $("reveal").addEventListener("click",()=>{if(!state.playing)start();rampTo(state.anchor*60,3600);});
   $("tempo").addEventListener("input",e=>{state.ramp=null;state.bpm=bpmFromPos(+e.target.value);$("ramp-hint").textContent="Manual tempo control · Reveal chord will calculate a new destination from your pitch anchor.";sync();});
   $("anchor").addEventListener("change",e=>{state.anchor=+e.target.value;sync();if(state.playing)rampTo(state.anchor*60,3600);});
   $("presets").addEventListener("click",e=>{const b=e.target.closest("[data-ratio]");if(!b)return;state.tracks=b.dataset.ratio.split(":").map(n=>({division:+n,volume:.72}));renderTracks();});
